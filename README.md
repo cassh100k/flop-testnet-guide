@@ -1,132 +1,187 @@
-# FLOP Labs Testnet: A Beginner's Guide to Getting Ready
+# FLOP Labs Testnet: A Beginner's Guide for Validators
 
-Never run a node before? This guide takes you from zero to a **submitted testnet validator
-application with proof that your server works**, step by step, with every command to copy and paste.
+**The FLOP testnet is live** (opened 24 November 2026) and registration is open for the **first 50
+validator seats**. This guide walks a complete beginner through FLOP's official preparation steps,
+with every command to copy and paste.
 
-Current as of 25 Nov 2026.
+Last checked against FLOP's official pages: **25 Nov 2026**.
 
-> **Unofficial community guide.** Every command here comes from FLOP Labs' own published material
-> (linked at each step). Cross-check [docs.flop.network](https://docs.flop.network) and the
-> [flop-labs/network](https://github.com/flop-labs/network) repo. Nothing here guarantees a seat.
-
----
-
-## Part 0. Understand what you're doing (5 minutes)
-
-**FLOP Labs** is building a blockchain for verified AI inference. Two kinds of machines run it:
-
-- **Miners** run AI models on GPUs.
-- **Validators** keep the chain running: they agree on blocks and store data. A validator is a normal
-  **CPU server**. No GPU needed. This guide is about validators.
-
-There are two networks:
-
-| | Devnet | Testnet |
-|---|---|---|
-| What it is | A practice network, live now | The real dress rehearsal before mainnet |
-| Does it count? | **No.** No rewards, no airdrop weight | **Yes.** It counts toward the genesis allocation |
-| Can outsiders join as validators? | Only by invitation | **Not yet.** FLOP hasn't published the testnet kit |
-
-**So how do you get ready for testnet today?** You prove you can run a node properly *on devnet*,
-using a **keyless node**: a node that follows the chain but holds no keys and signs nothing. It's
-free, it needs no permission, and it's exactly the proof FLOP's testnet application form asks for.
-
-**The plan:**
-
-1. Rent a server
-2. Connect to it and install the basics
-3. Download FLOP's files and check they're genuine
-4. Start a keyless node and let it sync
-5. Collect proof that it works (and survives a restart)
-6. Submit your testnet application with that proof
-7. Prepare for the validator handoff (when FLOP opens signing)
-
-Time: about 1 hour of your work, plus about 3 hours of waiting for the sync.
-
-> ⚠️ **$FLOP is not live.** Nobody can sell you tokens, testnet seats or "guaranteed" spots.
-> FLOP will never ask for your seed phrase, private keys or access to your server.
+> **Unofficial community guide.** It follows FLOP's official
+> [validator prep kit](https://docs.flop.network/testnet-validator-prep/),
+> [Testnet overview](https://docs.flop.network/networks/testnet) and
+> [testnet page](https://flop.finance/testnet/). Things change daily during the opening: always check
+> those pages and the [Testnet Operator Hub](https://docs.flop.network/operators?network=testnet) first.
 
 ---
 
-## Part 1. Rent a server
+## Part 0. What's happening (read in 3 minutes)
 
-Rent a **Linux VPS or dedicated server** from any hosting provider. Choose:
-
-| Setting | Choose |
+| | |
 |---|---|
-| Operating system | **Ubuntu 24.04 LTS** |
-| CPU type | **x86-64** (also called amd64; not ARM) |
-| Size for this guide | At least **4 vCPU, 16 GB RAM, 300 GB SSD** (FLOP's pilot reference) |
-| Network | A **public IPv4 address** that doesn't change |
+| **Status** | Live, **unscored opening** since 24 Nov 2026. Six founding validators produce and finalize blocks |
+| **Seats** | Registration open for the **first 50 validator seats**. FLOP's target: 50 active validators, then about 25% more per day as applicants qualify |
+| **Test FLOP** | Has **no monetary value**. Expect outages, upgrades and possible resets |
+| **What counts** | A later **scored phase** (up to ~90 days) is the only route to the genesis airdrop. Validators are **ranked on-chain** on performance, and mainnet validator admission is by testnet ranking |
+| **Cost** | The stake for testnet validators can be **sponsored by the network**, so your cost is the server and your time |
+| **Mainnet** | Planned Q1 2027 |
 
-Plan ahead: a real testnet *validator* is expected to need about **8 dedicated cores, 32 GB RAM,
-4 TB NVMe** and reliable 1 Gbps (FLOP's planning estimate). You can start smaller for this keyless
-step and upgrade later.
+**What you can do today, in order:**
 
-Use a server that runs **only this**. Don't put it on a machine with wallets or other projects.
+1. Check the live testnet yourself
+2. Register your team (takes 5 minutes, no server needed)
+3. Get the right server and fill in FLOP's host worksheet
+4. Install the tools
+5. Rehearse on devnet: run a keyless node and record proof
+6. Update your registration
+7. When FLOP publishes the signed testnet kit: verify it and join
 
-**In your provider's firewall / security settings**, allow inbound:
+**What you can't do yet:** run a testnet validator. The **signed raw chain spec and Linux node kit
+are pending publication**. Don't generate keys or sign anything for testnet until they're out.
 
-- **TCP 22** (SSH, so you can log in)
-- **TCP 30333** (the FLOP node talks to other nodes on this port)
-
-Write down your server's **public IP address** and **root password** (or SSH key) from the provider.
+> ⚠️ **Scam warning.** There is no paid seat, no token sale and no "guaranteed spot". FLOP never asks
+> for your seed phrase, private keys or access to your server, and no payment or signature is due to register.
 
 ---
 
-## Part 2. Connect to your server and install the basics
+## Part 1. See the live testnet yourself
 
-### 2.1 Log in
+From any computer with a terminal:
 
-- **Windows:** open **PowerShell**. **Mac / Linux:** open **Terminal**.
-- Type this, using your server's IP:
+```bash
+curl -fsS https://testnet.flop.network/ -H 'Content-Type: application/json' \
+  -d '{"jsonrpc":"2.0","id":1,"method":"chain_getBlockHash","params":[0]}'
+```
+
+The `result` must be the official testnet genesis:
+
+```text
+0x918abd58fb16306b30ef3886514cfaebffecb4de43e82b6f8ec4795c43cfd800
+```
+
+You can also watch blocks on the explorer: **[testnet.flopscan.io](https://testnet.flopscan.io/)**.
+
+---
+
+## Part 2. Register your team (do this now)
+
+You can register **before** your server is ready.
+
+1. Create a free **GitHub** account if you don't have one.
+2. Open the official
+   **[operator registration form](https://github.com/flop-labs/network/issues/new?template=operator-application.yml)**.
+3. Fill it in:
+
+| Field | What to write |
+|---|---|
+| Team ID | A public team name you'll keep using |
+| Network | **testnet** |
+| Requested role | **validator candidate** |
+| Existing application | Link your devnet application if you have one, else leave empty |
+| Planned capacity and host | Planned number of hosts, provider and region, CPU / RAM / disk / OS |
+| Preparation stage | Be honest, e.g. **planning a host** (you'll update it later) |
+| Sync and restart evidence | Leave empty for now (Part 6) |
+| Notes | Any blockers, and ask for a **private coordination channel** for contacts and detailed evidence |
+
+4. Submit. Your **issue number is your application ID**.
+
+Rules:
+
+- **One issue per team per network.** Already registered? Update that issue instead of opening a new one.
+- The issue is **public**: never paste seeds, private keys, `account.json`, `.env`, keystores or tokens.
+- Registering records interest. Seat assignment, sponsorship and activation are separate later steps.
+
+---
+
+## Part 3. Get the right server
+
+### 3.1 Server size
+
+FLOP's official sizing:
+
+| | Production sizing reference (prep kit) | Recommended (testnet page, provisional) |
+|---|---|---|
+| CPU | **8 physical cores, 3.4 GHz or faster** | 8+ cores |
+| RAM | **32 GB ECC** (64 GB recommended) | 64 GB |
+| Disk | **4 TB enterprise NVMe** | 4 TB NVMe (2 TB minimum) |
+| Network | **1 Gbps symmetric** | 1 Gbps redundant |
+
+Choose **Ubuntu 24.04 LTS** on **x86-64 (amd64)**, with a stable **public IPv4**. Use a
+**dedicated** server that runs nothing else. Record the capacity you *actually* have; that's what
+FLOP asks for.
+
+> Just rehearsing first (Part 5)? A smaller server is fine for the devnet rehearsal alone:
+> FLOP's pilot reference is 4 vCPU, 16 GB RAM, 300 GB SSD.
+
+### 3.2 Fill in FLOP's host worksheet (keep it private)
+
+Download FLOP's blank worksheet:
+
+```bash
+curl -fLO https://docs.flop.network/testnet-validator-prep/host-worksheet.csv
+```
+
+Open it in any spreadsheet app. Use **one row per proposed testnet node**: operator and controlling
+entity, shared infrastructure, on-call contacts, time zone, provider, ASN, region, CPU, RAM, free
+NVMe, OS, bandwidth, planned public P2P and DA addresses, accounts, and whether you'll self-fund or
+request sponsorship. Mark unknowns as `pending`.
+
+**Keep your filled copy private.** Share it only through the private channel FLOP sets up with you.
+
+---
+
+## Part 4. Connect to your server and install the tools
+
+### 4.1 Log in
+
+**Windows:** open PowerShell. **Mac / Linux:** open Terminal.
 
 ```bash
 ssh root@YOUR_SERVER_IP
 ```
 
-Type `yes` if asked about the fingerprint, then your password. You're in when the prompt shows your
-server's name. Every command from now on runs **on the server**.
+Everything below runs **on the server**.
 
-### 2.2 Update the system and install tools
+### 4.2 Tools FLOP requires: Linux amd64, Node.js 24+, Docker Engine 28+, Compose, flock
 
 ```bash
 apt update && apt upgrade -y
-apt install -y curl jq ufw zstd
-```
-
-### 2.3 Install Docker
-
-Docker runs the FLOP node in a container. This is Docker's official installer:
-
-```bash
+apt install -y curl jq ufw zstd util-linux
 curl -fsSL https://get.docker.com | sh
-docker --version && docker compose version
+curl -fsSL https://deb.nodesource.com/setup_24.x | bash -
+apt install -y nodejs
+docker --version && docker compose version && node --version && flock --version
 ```
 
-Both commands should print a version number.
+Check: Docker **28 or newer**, Node **v24**, and all four print a version.
 
-### 2.4 Turn on the server's own firewall
+### 4.3 Firewall: the ports FLOP plans
 
 ```bash
 ufw allow OpenSSH
-ufw allow 30333/tcp
+ufw allow 30333/tcp   # P2P: other nodes connect to yours
+ufw allow 7001/tcp    # filtered data availability (DA)
 ufw --force enable
 ufw status
 ```
 
-You should see `22/tcp` (OpenSSH) and `30333/tcp` as **ALLOW**. Nothing else needs to be open.
+Open the same two ports in your **hosting provider's** firewall too. **Never** expose node RPC
+**9944**, metrics **9615** or raw DA **7000** to the internet.
 
 ---
 
-## Part 3. Download FLOP's files and check they're genuine
+## Part 5. Rehearse on devnet: run a keyless node and record proof
 
-These commands come straight from FLOP's official
+This is FLOP's official step 2 ("prepare one host and rehearse on devnet"). A **keyless node**
+follows the chain but holds no keys and signs nothing. It proves your server can sync, agree with
+FLOP's chain and survive a restart. It runs on **devnet**, because the testnet kit isn't public yet.
+Keep it completely separate from any future testnet data.
+
+All commands come from FLOP's official
 [Devnet RPC guide](https://gist.github.com/sv/7c8b93f3868bc15e3b6eabe0578057e3#run-a-flop-devnet-rpc-replica).
-They download five setup files pinned to an exact version, plus the chain's "genesis file", and check
-every file's fingerprint (SHA-256). **If any line doesn't say `OK`, stop.** The file isn't genuine.
 
-Copy and paste the whole block:
+### 5.1 Download FLOP's files and check they're genuine
+
+Paste the whole block. **If any line doesn't end in `OK`, stop.**
 
 ```bash
 set -euo pipefail
@@ -151,46 +206,31 @@ printf '%s  %s\n' \
 cp -n rpc-pool.env.example rpc-pool.env
 ```
 
-You should see six lines ending in **`OK`**.
-
----
-
-## Part 4. Configure and start your keyless node
-
-### 4.1 Find your two IP addresses
+### 5.2 Set your IP addresses
 
 ```bash
-hostname -I | awk '{print $1}'     # your server's LOCAL IP  -> use for HOST_IP
-curl -4 -s https://api.ipify.org; echo   # your PUBLIC IP -> use in PUBLIC_ADDR
-```
-
-On many VPS providers both are the same. On AWS-style cloud servers they're different; that's fine.
-
-### 4.2 Edit the settings file
-
-```bash
+hostname -I | awk '{print $1}'           # LOCAL IP  -> HOST_IP
+curl -4 -s https://api.ipify.org; echo   # PUBLIC IP -> PUBLIC_ADDR
 nano rpc-pool.env
 ```
 
-Find these two lines and fill them in (keep everything else as it is):
+Fill in these two lines (leave everything else as it is):
 
 ```text
 HOST_IP=YOUR_LOCAL_IP
 PUBLIC_ADDR=/ip4/YOUR_PUBLIC_IP/tcp/30333
 ```
 
-Make sure these stay exactly like this, so your node's private ports are not exposed:
+Make sure these stay on localhost:
 
 ```text
 RPC_BIND_IP=127.0.0.1
 PROMETHEUS_BIND_IP=127.0.0.1
 ```
 
-Save with **Ctrl+O**, **Enter**, then exit with **Ctrl+X**.
+Save with **Ctrl+O**, **Enter**, exit with **Ctrl+X**.
 
-The file already pins FLOP's official node image and bootnode. Don't change those.
-
-### 4.3 Start the node
+### 5.3 Start it and wait for sync
 
 ```bash
 docker compose --env-file rpc-pool.env -f docker-compose.rpc.yml config --quiet
@@ -198,35 +238,19 @@ docker compose --env-file rpc-pool.env -f docker-compose.rpc.yml up -d
 docker compose --env-file rpc-pool.env -f docker-compose.rpc.yml logs --tail=80 rpc
 ```
 
-The first command prints nothing if your settings are valid. The last one shows the node's log:
-you should see it finding peers and importing blocks.
-
-### 4.4 Wait for it to sync
-
-Check if it's ready:
+Check if it's synced (about **3 hours** from scratch; FLOP's guide also offers a faster daily snapshot):
 
 ```bash
 curl --fail http://127.0.0.1:9619/ready
 ```
 
-- **Error / 503** means it's still catching up. That's normal. A full sync takes about **3 hours**.
-- **Success (200)** means it's synced and following the chain.
+Error or 503 means still syncing. Success means ready.
 
-Check again every half hour or so. Want it faster? FLOP publishes a daily database snapshot you can
-start from; see "Optional: start from a FLOP snapshot" in the
-[official guide](https://gist.github.com/sv/7c8b93f3868bc15e3b6eabe0578057e3#run-a-flop-devnet-rpc-replica).
+> 🛑 **Never run `docker compose down -v`.** It deletes your data and your node's identity (Peer ID).
 
-> 🛑 **Never run `docker compose down -v`.** The `-v` deletes your node's data *and its identity*
-> (Peer ID), and you'd have to start over.
+### 5.4 Record your proof
 
----
-
-## Part 5. Collect your proof
-
-Once the readiness check succeeds, run FLOP's official checks. They confirm your node agrees with
-FLOP's own node about the chain, take two snapshots a minute apart, then restart your node.
-
-Paste this whole block (from the official guide):
+Once ready, paste FLOP's official check block:
 
 ```bash
 set -euo pipefail
@@ -270,164 +294,87 @@ observe
 docker compose --env-file rpc-pool.env -f docker-compose.rpc.yml restart rpc ready
 ```
 
-You'll see **two lines** starting with `UTC=`. **Copy them somewhere safe**: that's Observation 1
-and Observation 2.
-
-Now wait a few minutes for the node to come back (`curl --fail http://127.0.0.1:9619/ready` succeeds
-again), then in the **same terminal window** run:
+Save the two `UTC=` lines it prints. Wait until `curl --fail http://127.0.0.1:9619/ready` succeeds
+again, then in the **same terminal**:
 
 ```bash
 observe
 test "$(rpc "$LOCAL" system_localPeerId '[]')" = "$peer_before" && echo "Peer ID unchanged: OK"
 ```
 
-Copy the third `UTC=` line (that's your **after restart** observation) and check you see
-`Peer ID unchanged: OK`.
-
-**What good proof looks like:** the finalized heights go up each time, the hashes match FLOP's, and the
-`peer=` value is the same in all three lines. If anything fails, don't delete your node; note the
-error and mention it in your application.
-
-> All of this is **public** information. It contains no keys or secrets.
+Save the third `UTC=` line. Good proof: heights go **up** each time, hashes **match** FLOP's, and the
+`peer=` value is **the same** in all three lines. These are your **receipts**.
 
 ---
 
-## Part 6. Submit your testnet application
+## Part 6. Update your registration
 
-1. You need a free **GitHub account**.
-2. Open the
-   [Validator / RPC operator application](https://github.com/flop-labs/network/issues/new?template=operator-application.yml)
-   in `flop-labs/network` (or pick it from the
-   [issue chooser](https://github.com/flop-labs/network/issues/new/choose)).
-3. Fill it in:
+Go back to **your same GitHub issue** and update it:
 
-| Field | What to write |
+- **Preparation stage:** `sync and restart evidence ready`
+- **Evidence:** reference your receipts: the `UTC=` lines, guide revision
+  `21adaa99c601003278d1682bf937696f21d31432`, image digest from `rpc-pool.env`, chain spec SHA-256
+  `3b213c38e7678285bc38fbdfded5dbe3d6acbd16e836b14aaaeef2f6ae1cd16e`, Peer ID, and "same Compose
+  project and volume retained".
+- Share the **detailed** evidence and your **worksheet** through the private channel, not in the issue.
+
+Keep the keyless node running.
+
+---
+
+## Part 7. When the signed testnet kit is published
+
+Watch **[FLOP Network releases](https://github.com/flop-labs/network/releases)** and the
+**[Testnet Operator Hub](https://docs.flop.network/operators?network=testnet)**. When the kit appears,
+follow its versioned instructions. Before you start anything, check it matches the official identity:
+
+| | Official value |
 |---|---|
-| Team ID | A short public name you'll keep using (e.g. your handle) |
-| Network | **testnet** |
-| Requested role | **validator candidate** |
-| Existing application | Leave empty if this is your first one |
-| Planned capacity and host | `1 seat`, your provider and region, CPU / RAM / disk / OS, and your public P2P address (`/ip4/YOUR_PUBLIC_IP/tcp/30333`) |
-| Preparation stage | **sync and restart evidence ready** |
-| Sync and restart evidence | Paste your 3 `UTC=` lines, plus: guide revision `21adaa99c601003278d1682bf937696f21d31432`, chain spec SHA-256 `3b213c38…1cd16e`, expected genesis `0x99c172c0…2d631`, "same Compose project and volume retained, no Tailscale on this host", and your Peer ID |
+| Chain | FLOP Testnet, `flop_testnet` (native FLOP, 18 decimals, SS58 format 42) |
+| Genesis | `0x918abd58fb16306b30ef3886514cfaebffecb4de43e82b6f8ec4795c43cfd800` |
+| Raw spec file | `flop_testnet-918abd58fb16306b.raw.json` |
+| Raw spec SHA-256 | `485ecb44635609ab261ea3002c3c9fdc7a5dab38caf28a86f654cadf443893be` |
+| Public RPC | `wss://testnet.flop.network/` |
+| Bootnode (Europe) | `/dns4/boot-eu-1.testnet.flop.network/tcp/30333/p2p/12D3KooWDAiKaoMzEWHJBaRuGcgfdZCv4YH8MeH893p5rvXbPCmy` |
+| Bootnode (Singapore) | `/dns4/boot-sg-1.testnet.flop.network/tcp/30333/p2p/12D3KooWDjyav9hUeEmcYwr1XZ3AG8XtohQQDegW2cBYWsz6HSSR` |
 
-4. Submit. **Your issue number is your application ID.**
+Check the chain spec once you've downloaded it:
 
-Rules that matter:
+```bash
+echo "485ecb44635609ab261ea3002c3c9fdc7a5dab38caf28a86f654cadf443893be  flop_testnet-918abd58fb16306b.raw.json" | sha256sum --check
+```
 
-- **One application per team per network.** To add or change something, edit or comment on your
-  existing issue. Never open a second one.
-- The issue is **public**: never paste seeds, private keys, `account.json`, `.env`, keystores or
-  tokens.
-- Submitting doesn't grant a seat. FLOP verifies your evidence and labels your issue as you progress.
+Then, per FLOP's prep kit:
+
+1. **Verify the signed release**: chain spec, checksums, node image, DA image and bootnodes against
+   the signed release manifest.
+2. **Use fresh testnet data and keys.** Never reuse devnet data, volumes or keys.
+3. **Choose self-funding or reviewed sponsorship** before signing anything.
+4. **Join with the versioned CLI** linked from the Operator Hub.
+5. **Confirm in finalized state** that you're registered, queued and finally **active**, with matching
+   session keys, before calling your seat active.
 
 ---
 
-## Part 7. From keyless node to testnet validator
+## Other ways to take part
 
-Your keyless node and application are **stage 1**. Becoming a signing validator follows FLOP's
-official handoff sequence for new public validators
-([signing release and handoff](https://gist.github.com/sv/870b0fa9d63efa6c7873ded10d49d411)).
-**Signing is not open to the public yet**: FLOP activates new validators only after it publishes a
-qualified signing package and network inputs. Here's the path, and what you can prepare **now**.
-
-### The official handoff sequence
-
-1. **Keep your keyless node running.** Same Peer ID, same volume. RPC, readiness and metrics stay
-   on localhost.
-2. **Receive the signing package and network inputs from FLOP.** A hardened node image, a
-   checksummed chain spec, public peers, approved public DA routes and capacity requirements.
-   **Until you have this, don't try to set up signing.**
-3. **Prepare locally.** Your private keys stay on your own server. You only ever share your
-   **public SS58 address** and your **public P2P and DA endpoints** (in your application issue).
-   No Tailscale, no SSH keys, no copied keystores are requested.
-4. **Pass the technical preflight.** Correct genesis, finality advancing in agreement with FLOP,
-   P2P and DA reachable in both directions, enough storage, correct clock, and RPC/metrics closed to
-   the internet.
-5. **Register only at the handoff.** FLOP checks your account and stake or sponsorship eligibility,
-   then you run the package's tested registration step yourself.
-6. **Activation, one at a time.** FLOP activates a canary validator first, verifies it really authors
-   and confirms blocks and handles its data duties, then expands the group.
-
-### Prepare now (copy-paste)
-
-**a) Plan a separate validator server.** Keep your keyless node as is. The validator should be its
-own persistent server sized to FLOP's planning estimate: **8 dedicated cores, 32 GB RAM, 4 TB NVMe**,
-reliable 1 Gbps, stable public IPv4.
-
-**b) Open the validator's ports** (on the *validator* server; also open them in your provider's firewall):
-
-```bash
-ufw allow OpenSSH
-ufw allow 30333/tcp   # P2P: other nodes connect to yours
-ufw allow 7001/tcp    # data availability (DA): public data endpoint
-ufw --force enable
-```
-
-RPC (9944) and metrics (9615) must **never** be opened to the internet.
-
-**c) Install Cosign**, the tool used to check that a FLOP image is genuinely signed by FLOP:
-
-```bash
-curl -fsSL -o /usr/local/bin/cosign \
-  https://github.com/sigstore/cosign/releases/download/v2.4.1/cosign-linux-amd64
-chmod +x /usr/local/bin/cosign
-cosign version
-```
-
-**d) Practice verifying an official image.** When FLOP publishes the testnet image, you'll verify
-it exactly like this. Here's the same check on FLOP's published devnet image (it only downloads and
-inspects; it doesn't run a validator):
-
-```bash
-IMAGE=ghcr.io/flop-labs/flop-core/node-devnet:v0.1.435@sha256:bc88eae43880413e1e9ce8363c0bb0d4d7f1de7643d00f21b59de0bde33c650f
-cosign verify \
-  --certificate-identity 'https://github.com/flop-labs/flop-core/.github/workflows/build-services.yml@refs/heads/main' \
-  --certificate-oidc-issuer https://token.actions.githubusercontent.com "$IMAGE"
-docker pull "$IMAGE"
-docker run --rm --network none --entrypoint zkv-relay "$IMAGE" --version
-```
-
-`cosign verify` must print a successful verification. Always use the exact `@sha256:` digest FLOP
-publishes, never `latest`.
-
-**e) Add your validator details to your application.** Comment on your **same** issue with your
-validator server's public IP, its planned P2P address (`/ip4/IP/tcp/30333`), your planned DA endpoint
-(`http://IP:7001`) and the server specs. Never post private keys.
-
-### What the testnet validator setup will look like
-
-From the `public-testnet` profile already shipped in FLOP's validator package:
-
-- Only **two public ports**: P2P **TCP 30333** and the filtered DA endpoint **TCP 7001**.
-- **Numeric public IPv4** only in the first version (no DNS or IPv6).
-- RPC forced to safe methods and bound to localhost; the node runs as an archive node.
-- **Testnet has its own image, chain spec, genesis and bootnodes.** Never reuse devnet keys,
-  volumes or settings for testnet.
-
----
-
-## Part 8. While you wait
-
-- **Keep the node running.** Check it now and then: `curl --fail http://127.0.0.1:9619/ready`.
-- **Watch disk space:** `df -h /`. The chain keeps growing; upgrade before it fills up.
-- **Watch for FLOP's testnet announcement** in the [flop-labs/network](https://github.com/flop-labs/network)
-  repo and on [docs.flop.network](https://docs.flop.network). When the testnet kit is published:
-  - Download it **only from official FLOP sources** and verify every checksum.
-  - Use a **fresh** testnet setup. Never reuse your devnet database, volume or keys.
-  - Follow the official admission steps and update your **same** application issue.
+- **GPU miners:** a separate testnet onboarding. The testnet miner pack isn't published yet; see
+  [Testnet miner onboarding](https://docs.flop.network/docs/run-miner?network=testnet).
+- **Agents:** need a decentralised identifier (DID) and a wallet, then buy inference or trade with
+  other agents on technocore.chat. Earning (vouchers) hasn't started; it begins at a future announced block.
 
 ---
 
 ## Troubleshooting
 
-| Problem | What it usually means | Try |
-|---|---|---|
-| `ready` keeps failing after many hours | Still syncing, or no peers | Check `docker compose --env-file rpc-pool.env -f docker-compose.rpc.yml logs --tail=80 rpc` |
-| Logs show 0 peers | Port 30333 is blocked | Open TCP 30333 in **both** your provider's firewall and `ufw` |
-| A checksum says `FAILED` | The file isn't the official one | Delete the folder and start Part 3 again |
-| Disk full | The archive outgrew your disk | Upgrade the server's disk; don't delete the database |
-| `docker: command not found` | Docker isn't installed | Redo Part 2.3 |
+| Problem | Try |
+|---|---|
+| A checksum says `FAILED` | The file isn't official. Delete it and download again from the official link |
+| `ready` keeps failing for hours | Check logs: `docker compose --env-file rpc-pool.env -f docker-compose.rpc.yml logs --tail=80 rpc` |
+| Logs show 0 peers | Open TCP 30333 in both `ufw` and your provider's firewall |
+| Docker older than 28 | Re-run `curl -fsSL https://get.docker.com \| sh` |
+| Node isn't v24 | Re-run the NodeSource lines in Part 4.2 |
+| Disk filling up | The chain grows; upgrade the disk, don't delete the database |
 
 ---
 
@@ -435,25 +382,29 @@ From the `public-testnet` profile already shipped in FLOP's validator package:
 
 | Word | Meaning |
 |---|---|
-| **Node** | A computer running the blockchain software |
-| **Validator** | A node that helps produce and confirm blocks (needs admission) |
+| **Validator** | A server that produces and confirms blocks |
 | **Keyless node** | A node that follows the chain but holds no keys and signs nothing |
-| **Devnet / Testnet** | Practice network / the rehearsal network that counts |
-| **Genesis** | The very first block. Every node on the same network must agree on it |
-| **Finalized height** | How many blocks are permanently confirmed |
-| **Peer ID** | Your node's identity on the network. It must stay the same across restarts |
-| **Checksum (SHA-256)** | A fingerprint proving a file wasn't changed |
-| **Port 30333** | The door other nodes use to reach yours |
+| **Devnet / Testnet** | Practice network / the live pre-mainnet network that counts |
+| **Genesis** | The very first block; everyone on a network must agree on it |
+| **Finalized** | Permanently confirmed |
+| **Peer ID** | Your node's identity on the network; it must survive restarts |
+| **Checksum (SHA-256)** | A fingerprint that proves a file is genuine |
+| **Sponsorship** | The network posting a validator's stake for it |
 
 ---
 
-## Official sources
+## Official links
 
-- FLOP Devnet RPC guide (Parts 3 to 5): <https://gist.github.com/sv/7c8b93f3868bc15e3b6eabe0578057e3>
-- FLOP signing release and validator handoff (Part 7): <https://gist.github.com/sv/870b0fa9d63efa6c7873ded10d49d411>
-- Docs: <https://docs.flop.network> · search: <https://ask.flop.finance>
-- Applications: <https://github.com/flop-labs/network>
+- Testnet page: <https://flop.finance/testnet/>
+- Testnet overview (RPC, genesis, bootnodes): <https://docs.flop.network/networks/testnet>
+- Validator prep kit (first 50 seats): <https://docs.flop.network/testnet-validator-prep/>
+- Testnet Operator Hub: <https://docs.flop.network/operators?network=testnet>
+- Testnet opening FAQ: <https://docs.flop.network/docs/testnet-and-timeline?network=testnet>
+- Explorer: <https://testnet.flopscan.io/>
+- Releases: <https://github.com/flop-labs/network/releases>
+- Devnet keyless node guide: <https://gist.github.com/sv/7c8b93f3868bc15e3b6eabe0578057e3>
+- Registration form: <https://github.com/flop-labs/network/issues/new?template=operator-application.yml>
 
 ---
 
-*Community-maintained. Not affiliated with FLOP Labs. $FLOP is not live; this is not financial advice.*
+*Community-maintained. Not affiliated with FLOP Labs. Test FLOP has no value; this is not financial advice.*
